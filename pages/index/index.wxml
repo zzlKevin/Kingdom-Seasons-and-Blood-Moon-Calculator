@@ -51,7 +51,7 @@
       </view>
 
       <view class="form-item">
-        <view class="label">当前天数 (1游戏日 = 4分钟, 输入后自动推进)</view>
+        <view class="label">当前天数 (1游戏日 = 4分钟, 每4分钟自动+1)</view>
         <view class="stepper-row">
           <view class="step-btn" bindtap="onStepDown">−1</view>
           <input class="day-input" type="number" value="{{dayInput}}"
@@ -82,6 +82,37 @@
         </view>
         <view class="clock-note">与游戏内昼夜同步 · 1游戏日 = 4现实分钟</view>
       </view>
+      <!-- 血月 + 平安日 合并卡 -->
+      <view class="card duo-card">
+        <view class="duo-half">
+          <view class="card-title blood-title">距下次血月</view>
+          <view class="count-row" wx:if="{{result.isBloodMoonToday}}">
+            <text class="highlight danger">就是今天!</text>
+          </view>
+          <view class="count-row" wx:else>
+            <text class="big-num">{{result.daysUntilBloodMoon}}</text>
+            <text class="unit">天后</text>
+          </view>
+          <view class="sub-line">血月日: 第 {{result.nextBloodMoonDay}} 天</view>
+        </view>
+
+        <view class="duo-divider"></view>
+
+        <view class="duo-half">
+          <view class="card-title safe-title">下次平安日</view>
+          <block wx:if="{{result.nextPeaceDay}}">
+            <view class="count-row" wx:if="{{result.isPeaceDayToday}}">
+              <text class="highlight safe">就是今天!</text>
+            </view>
+            <view class="count-row" wx:else>
+              <text class="big-num">{{result.daysUntilPeaceDay}}</text>
+              <text class="unit">天后</text>
+            </view>
+            <view class="sub-line">平安日: 第 {{result.nextPeaceDay}} 天</view>
+          </block>
+          <view wx:else class="sub-line">{{result.peaceNote || '暂无平安日数据'}}</view>
+        </view>
+      </view>
 
       <view class="card target-card" wx:if="{{target}}">
         <view class="card-title target-title">迁岛窗口 · {{target.title}}</view>
@@ -104,22 +135,12 @@
           <text wx:elif="{{target.cycleDay}}"> · 周期第 {{target.cycleDay}} 天</text>
           <text wx:if="{{target.islandName}}"> · {{target.islandName}}</text>
         </view>
-        <view class="sub-line live-line">当前游戏内第 {{liveDay}} 天 (每4分钟自动+1)</view>
         <view class="strategy-tip">攻略: 该血月结束的当晚立即前往新岛 → 抵达首日为完整平安日 → 春季来临即可耕种赚钱, 避免刚上岛就遭遇血月+寒冬无田可耕。</view>
         <view class="mini-warn" wx:if="{{target.extrapolated}}">目标日在实测日历(第639天)之外, 按第10年节奏外推</view>
       </view>
 
-      <view class="card">
-        <view class="card-title blood-title">距下次血月</view>
-        <view class="count-row" wx:if="{{result.isBloodMoonToday}}">
-          <text class="highlight danger">就是今天!</text>
-        </view>
-        <view class="count-row" wx:else>
-          <text class="big-num">{{result.daysUntilBloodMoon}}</text>
-          <text class="unit">天后</text>
-        </view>
-        <view class="sub-line">血月日: 第 {{result.nextBloodMoonDay}} 天</view>
-      </view>
+      
+
 
       <view class="card">
         <view class="card-title season-title">当前季节</view>
@@ -132,20 +153,7 @@
         <view class="sub-line" wx:if="{{result.daysToNextSeason !== null}}">距下次换季还有 {{result.daysToNextSeason}} 天</view>
       </view>
 
-      <view class="card">
-        <view class="card-title safe-title">下次平安日</view>
-        <block wx:if="{{result.nextPeaceDay}}">
-          <view class="count-row" wx:if="{{result.isPeaceDayToday}}">
-            <text class="highlight safe">就是今天!</text>
-          </view>
-          <view class="count-row" wx:else>
-            <text class="big-num">{{result.daysUntilPeaceDay}}</text>
-            <text class="unit">天后</text>
-          </view>
-          <view class="sub-line">平安日: 第 {{result.nextPeaceDay}} 天</view>
-        </block>
-        <view wx:else class="sub-line">{{result.peaceNote || '暂无平安日数据'}}</view>
-      </view>
+      
 
       <view class="card">
         <view class="card-title cal-title">未来 7 天速览</view>
@@ -160,6 +168,7 @@
       </view>
     </block>
 
-    <view class="footer">数据来源: 贴吧 @王国两位君主吧 · 仅供参考, 以游戏内为准</view>
+    <view class="footer">数据来源: 游戏代码 · 仅供参考, 以游戏内为准</view>
+    <view class="footer">联系我：1696853278@qq.com</view>
   </view>
 </view>
