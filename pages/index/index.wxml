@@ -1,4 +1,19 @@
-<scroll-view scroll-y class="page-scroll">
+<!-- 昼夜天空背景(固定底层) -->
+<view class="sky-bg" style="background: {{skyGradient}}">
+  <view class="stars" style="opacity: {{starsOpacity}}">
+    <view class="star" wx:for="{{stars}}" wx:key="idx"
+          style="left:{{item.l}}%;top:{{item.tp}}%;width:{{item.s}}rpx;height:{{item.s}}rpx;animation-delay:{{item.d}}s"></view>
+  </view>
+  <view class="cloud c1" style="opacity: {{cloudsOpacity}}"></view>
+  <view class="cloud c2" style="opacity: {{cloudsOpacity}}"></view>
+  <view class="sun" style="{{sunStyle}}"></view>
+  <view class="{{isBloodNight ? 'moon blood' : 'moon'}}" style="{{moonStyle}}"></view>
+  <view class="flag"></view>
+  <view class="castle"></view>
+</view>
+
+<!-- 内容层(页面原生滚动, 始终在天空之上) -->
+<view class="page-wrap">
   <view class="page">
     <view class="header">
       <view class="title">血月日历</view>
@@ -43,6 +58,18 @@
         <view class="today-label">第 {{result.day}} 天 · 今天是</view>
         <view class="today-type">{{result.todayTypeName}}</view>
         <view class="today-hint">{{result.todayHint}}</view>
+      </view>
+
+      <!-- 今日昼夜时钟 -->
+      <view class="card clock-card">
+        <view class="clock-top">
+          <view class="clock-phase {{isBloodNight ? 'blood' : ''}}">{{isBloodNight ? '血月之夜' : dayPhaseName}}</view>
+          <view class="clock-remaining">距明天 {{dayRemaining}}</view>
+        </view>
+        <view class="day-progress">
+          <view class="day-progress-bar" style="width: {{dayProgressPct}}%"></view>
+        </view>
+        <view class="clock-note">与游戏内昼夜同步 · 1游戏日 = 4现实分钟</view>
       </view>
 
       <!-- 迁岛窗口(挂机倒计时) -->
@@ -128,9 +155,8 @@
         </view>
         <view class="sub-line" wx:else>暂无数据</view>
       </view>
-
     </block>
 
     <view class="footer">数据来源: 贴吧 @王国两位君主吧 · 仅供参考, 以游戏内为准</view>
   </view>
-</scroll-view>
+</view>
