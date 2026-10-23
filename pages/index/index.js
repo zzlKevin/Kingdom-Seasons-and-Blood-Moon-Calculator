@@ -190,7 +190,7 @@ Page({
       this.setData({ result: null, target: null, upcoming: [], liveDay: null, countdown: '00:00:00', error: '' });
       return;
     }
-    if (resetBase || !this._baseDay) { this._baseDay = day; this._baseTime = Date.now(); }
+    if (resetBase || !this._baseDay) { this._baseDay = day; this._baseTime = Date.now(); this._scrubOffset = 0; }
     this._dirty = true;
     if (!this._timer) this._timer = setInterval(() => this.tick(), TICK_MS);
     this.tick();
@@ -201,9 +201,12 @@ Page({
     const parsed = parseInt(this.data.dayInput, 10);
     if (!Number.isInteger(parsed)) return;
     if (!this._baseDay) { this._baseDay = parsed; this._baseTime = Date.now(); }
+    // scrubOffset 只影响"这一天内"的昼夜进度, 天数始终按真实时间推算, 避免把 liveDay 拖乱
+    const off = Number.isFinite(this._scrubOffset) ? this._scrubOffset : 0;
+    const now = Date.now() + off;
+    const realNow = Date.now();
+    const liveDay = Math.max(1, this._baseDay + Math.floor((realNow - this._baseTime) / MS_PER_DAY));
 
-    const now = Date.now() + (this._scrubOffset || 0);
-    const liveDay = this._baseDay + Math.floor((now - this._baseTime) / MS_PER_DAY);
     const mode = modes[modeIndex];
     const island = needIsland ? islands[islandIndex] : null;
 
