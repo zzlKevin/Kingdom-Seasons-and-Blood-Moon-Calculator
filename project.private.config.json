@@ -1,0 +1,18 @@
+{
+  "description": "王国：两位君主 血月日历计算器",
+  "libVersion": "3.17.5",
+  "projectname": "%E5%AD%A3%E8%8A%82%E4%B8%8E%E8%A1%80%E6%9C%88%E8%AE%A1%E7%AE%97",
+  "setting": {
+    "es6": true,
+    "postcss": true,
+    "minified": true,
+    "urlCheck": false,
+    "coverView": true,
+    "lazyloadPlaceholderEnable": false,
+    "skylineRenderEnable": true,
+    "preloadBackgroundData": false,
+    "autoAudits": false,
+    "showShadowRootInWxmlPanel": true,
+    "compileHotReLoad": true
+  }
+}

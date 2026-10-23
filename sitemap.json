@@ -1,0 +1,4 @@
+{
+  "desc": "血月日历工具",
+  "rules": [{ "action": "allow", "page": "*" }]
+}

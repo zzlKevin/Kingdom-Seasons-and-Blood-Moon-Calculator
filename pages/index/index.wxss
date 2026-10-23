@@ -1,0 +1,120 @@
+.page-scroll { height: 100vh; width: 100%; }
+.page { padding: 24rpx; padding-bottom: 80rpx; }
+
+.header { padding: 16rpx 8rpx 28rpx; }
+.title { font-size: 48rpx; font-weight: 700; letter-spacing: 4rpx; }
+.subtitle { font-size: 24rpx; color: #8f8fb0; margin-top: 8rpx; }
+
+.card {
+  background: #1F1F3A;
+  border-radius: 20rpx;
+  padding: 28rpx;
+  margin-bottom: 24rpx;
+}
+
+/* ---- 表单 ---- */
+.form-item { margin-bottom: 28rpx; }
+.form-item:last-child { margin-bottom: 0; }
+.label { font-size: 24rpx; color: #8f8fb0; margin-bottom: 12rpx; }
+.picker-value {
+  background: #2A2A4A;
+  border-radius: 14rpx;
+  padding: 22rpx 24rpx;
+  font-size: 30rpx;
+}
+.arrow { color: #6c6c90; float: right; }
+.tip { font-size: 22rpx; color: #6c6c90; margin-top: 10rpx; }
+
+.stepper-row { display: flex; align-items: center; }
+.step-btn {
+  width: 110rpx; text-align: center;
+  background: #2A2A4A; border-radius: 14rpx;
+  padding: 20rpx 0; font-size: 30rpx; color: #b8b8e0;
+}
+.day-input {
+  flex: 1; margin: 0 16rpx;
+  background: #2A2A4A; border-radius: 14rpx;
+  padding: 20rpx 24rpx; font-size: 32rpx; text-align: center;
+}
+
+.error {
+  color: #ff7b7b; background: #3a1f2a;
+  border-radius: 14rpx; padding: 20rpx 24rpx;
+  margin-bottom: 24rpx; font-size: 26rpx;
+}
+.extrapolate-tip {
+  color: #ffd27b; background: #3a3220;
+  border-radius: 14rpx; padding: 18rpx 24rpx;
+  margin-bottom: 24rpx; font-size: 24rpx;
+}
+
+/* ---- 今日状态卡 ---- */
+.today-card { text-align: center; padding: 44rpx 28rpx; }
+.today-card.blood_moon { background: linear-gradient(135deg, #A11B2E, #6E1020); }
+.today-card.peace_day { background: linear-gradient(135deg, #1D5FA8, #123C6E); }
+.today-card.season_change { background: linear-gradient(135deg, #6A2FB8, #471D80); }
+.today-card.normal { background: linear-gradient(135deg, #2A2A4A, #1F1F3A); }
+.today-label { font-size: 26rpx; opacity: .8; }
+.today-type { font-size: 56rpx; font-weight: 700; margin: 16rpx 0; }
+.today-hint { font-size: 24rpx; opacity: .85; }
+
+/* ---- 信息卡 ---- */
+.card-title { font-size: 28rpx; margin-bottom: 18rpx; font-weight: 600; }
+.blood-title { color: #ff8a8a; }
+.season-title { color: #b98aff; }
+.safe-title { color: #8ac6ff; }
+.cal-title { color: #ffd27b; }
+.count-row { display: flex; align-items: baseline; }
+.big-num { font-size: 72rpx; font-weight: 700; color: #ff6b6b; }
+.unit { margin-left: 12rpx; font-size: 28rpx; color: #8f8fb0; }
+.highlight { font-size: 44rpx; font-weight: 700; }
+.danger { color: #ff6b6b; }
+.safe { color: #6bb6ff; }
+.sub-line { font-size: 24rpx; color: #8f8fb0; margin-top: 14rpx; }
+
+.season-line { display: flex; align-items: baseline; flex-wrap: wrap; }
+.season-name { font-size: 52rpx; font-weight: 700; color: #b98aff; margin-right: 20rpx; }
+.season-detail { font-size: 28rpx; color: #c9c9e8; }
+
+/* ---- 迁岛窗口卡 ---- */
+.target-card {
+  border: 1rpx solid #4a3b1e;
+  background: linear-gradient(160deg, #2b2415, #1F1F3A 65%);
+}
+.target-title { color: #ffd27b; }
+.gold { color: #ffd27b; }
+.gold-num { font-size: 72rpx; font-weight: 700; color: #ffd27b; }
+.strategy-tip {
+  margin-top: 16rpx; font-size: 24rpx; color: #d8c9a0;
+  background: rgba(255, 210, 123, .08);
+  border-radius: 12rpx; padding: 16rpx 20rpx; line-height: 1.6;
+}
+.mini-warn { margin-top: 12rpx; font-size: 22rpx; color: #ffd27b; opacity: .8; }
+
+/* ---- 未来7天(不再使用scroll-view, flex直排) ---- */
+.upcoming-row { display: flex; flex-wrap: wrap; }
+.up-item {
+  width: 90rpx;
+  background: #26264A;
+  border-radius: 12rpx;
+  padding: 14rpx 0;
+  text-align: center;
+  margin: 0 10rpx 10rpx 0;
+}
+.up-item.blood_moon { background: #8B1E2D; }
+.up-item.peace_day { background: #1E4D8B; }
+.up-item.season_change { background: #5B2D8B; }
+.up-day { font-size: 22rpx; color: #c9c9e8; }
+.up-tag { font-size: 22rpx; margin-top: 6rpx; color: #ffffff; }
+.up-item.normal .up-tag { color: #8f8fb0; }
+
+
+/* ---- 实时倒计时 ---- */
+.realtime-row { display: flex; align-items: baseline; margin-top: 10rpx; }
+.rt-label { font-size: 24rpx; color: #8f8fb0; margin-right: 16rpx; }
+.rt-time {
+  font-size: 48rpx; font-weight: 700; color: #ffd27b;
+  font-variant-numeric: tabular-nums; letter-spacing: 2rpx;
+}
+.live-line { color: #b8b8e0; }
+.card-subtitle { font-size: 22rpx; color: #8f8fb0; margin: -10rpx 0 16rpx; }
