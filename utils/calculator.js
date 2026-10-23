@@ -39,10 +39,29 @@ function query(modeId, islandId, day) {
   return queryFinite(mode, d);
 }
 
-// 迁岛窗口: 下一个冬季最后一个血月 (商路返回 null)
-function nextWinterLastBloodMoon(modeId, day) {
+// 迁岛窗口: 战役/挑战岛 → 下一个冬季最后一个血月; 商路 → 最近的一个血月的结束
+function nextWinterLastBloodMoon(modeId, day, islandId) {
   const mode = getMode(modeId);
-  if (!mode || mode.requires_island_selection) return null;
+  if (!mode) return null;
+
+  // ---- 商路(需选岛): 最近的一个血月, 倒计时到该日结束时刻 ----
+  if (mode.requires_island_selection) {
+    const island = (mode.islands || []).find(i => i.id === islandId) || mode.islands[0];
+    const cycle = island.cycle_days;
+    const cd = ((day - 1) % cycle) + 1;
+    const nextCd = findNextGE(island.blood_moons, cd);
+    const bmCd = nextCd === null ? island.blood_moons[0] : nextCd;
+    const diff = nextCd === null ? cycle - cd + island.blood_moons[0] : nextCd - cd;
+    return {
+      day: day + diff,
+      year: null,
+      cycleDay: bmCd,
+      extrapolated: false,
+      endOfDay: true,
+      title: '距最近的血月结束',
+      islandName: island.name
+    };
+  }
 
   if (mode.calendar_type === 'cyclic') {
     // 挑战岛: 64天循环, 冬季 = 周期第48~63天
@@ -54,7 +73,7 @@ function nextWinterLastBloodMoon(modeId, day) {
     }
     const cd = ((day - 1) % cycle) + 1;
     const diff = lastCd >= cd ? lastCd - cd : cycle - cd + lastCd;
-    return { day: day + diff, year: null, cycleDay: lastCd, extrapolated: false };
+    return { day: day + diff, year: null, cycleDay: lastCd, extrapolated: false, endOfDay: false, title: '距下一个冬季最后一个血月' };
   }
 
   // 战役类: 先查已知日历(1~639)
@@ -62,7 +81,7 @@ function nextWinterLastBloodMoon(modeId, day) {
     const list = getWinterTargets(mode);
     for (let i = 0; i < list.length; i++) {
       if (list[i].day >= day) {
-        return { day: list[i].day, year: list[i].year, cycleDay: null, extrapolated: false };
+        return { day: list[i].day, year: list[i].year, cycleDay: null, extrapolated: false, endOfDay: false, title: '距下一个冬季最后一个血月' };
       }
     }
   }
@@ -80,8 +99,9 @@ function nextWinterLastBloodMoon(modeId, day) {
   const diff = lastOff >= offset ? lastOff - offset : cycle - offset + lastOff;
   const target = day + diff;
   const year = 10 + Math.floor((target - ex.anchor_day) / cycle);
-  return { day: target, year, cycleDay: null, extrapolated: true };
+  return { day: target, year, cycleDay: null, extrapolated: true, endOfDay: false, title: '距下一个冬季最后一个血月' };
 }
+
 
 // ---------- 内部工具 ----------
 

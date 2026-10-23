@@ -1,26 +1,39 @@
 <!-- 昼夜天空背景(固定底层) -->
-<view class="sky-bg" style="background: {{skyGradient}}">
-  <view class="stars" style="opacity: {{starsOpacity}}">
-    <view class="star" wx:for="{{stars}}" wx:key="idx"
-          style="left:{{item.l}}%;top:{{item.tp}}%;width:{{item.s}}rpx;height:{{item.s}}rpx;animation-delay:{{item.d}}s"></view>
+<view class="sky-bg" style="{{skyStyle}}">
+  <view class="stars" style="{{starsStyle}}">
+    <view class="star" wx:for="{{stars}}" wx:key="idx" style="{{item.style}}"></view>
   </view>
-  <view class="cloud c1" style="opacity: {{cloudsOpacity}}"></view>
-  <view class="cloud c2" style="opacity: {{cloudsOpacity}}"></view>
+  <view class="cloud c1" style="{{cloudsStyle}}"></view>
+  <view class="cloud c2" style="{{cloudsStyle}}"></view>
+
+  <view class="particles {{seasonClass}}">
+    <block wx:if="{{seasonClass === 'p-summer'}}">
+      <view class="pt" wx:for="{{rainParticles}}" wx:key="idx" style="{{item.style}}"></view>
+    </block>
+    <block wx:else>
+      <view class="pt" wx:for="{{particles}}" wx:key="idx" style="{{item.style}}"></view>
+    </block>
+  </view>
+
   <view class="sun" style="{{sunStyle}}"></view>
-  <view class="{{isBloodNight ? 'moon blood' : 'moon'}}" style="{{moonStyle}}"></view>
-  <view class="flag"></view>
+  <view class="moon {{moonClass}}" style="{{moonStyle}}"></view>
   <view class="castle"></view>
+  <view class="flag"></view>
+  <view class="river">
+    <view class="river-glint" style="{{riverGlintStyle}}"></view>
+    <view class="river-wave w1"></view>
+    <view class="river-wave w2"></view>
+  </view>
 </view>
 
-<!-- 内容层(页面原生滚动, 始终在天空之上) -->
+<!-- 内容层(页面原生滚动) -->
 <view class="page-wrap">
   <view class="page">
-    <view class="header">
+    <view class="header" style="padding-top: {{statusBarHeight + 8}}px">
       <view class="title">血月日历</view>
       <view class="subtitle">王国：两位君主 · 季节与血月计算</view>
     </view>
 
-    <!-- 输入区 -->
     <view class="card form-card">
       <view class="form-item">
         <view class="label">游戏模式</view>
@@ -53,28 +66,25 @@
     <block wx:if="{{result}}">
       <view class="extrapolate-tip" wx:if="{{result.note}}">{{result.note}}</view>
 
-      <!-- 今日状态 -->
       <view class="card today-card {{result.todayType}}">
         <view class="today-label">第 {{result.day}} 天 · 今天是</view>
         <view class="today-type">{{result.todayTypeName}}</view>
         <view class="today-hint">{{result.todayHint}}</view>
       </view>
 
-      <!-- 今日昼夜时钟 -->
       <view class="card clock-card">
         <view class="clock-top">
           <view class="clock-phase {{isBloodNight ? 'blood' : ''}}">{{isBloodNight ? '血月之夜' : dayPhaseName}}</view>
           <view class="clock-remaining">距明天 {{dayRemaining}}</view>
         </view>
         <view class="day-progress">
-          <view class="day-progress-bar" style="width: {{dayProgressPct}}%"></view>
+          <view class="day-progress-bar" style="{{dayProgressStyle}}"></view>
         </view>
         <view class="clock-note">与游戏内昼夜同步 · 1游戏日 = 4现实分钟</view>
       </view>
 
-      <!-- 迁岛窗口(挂机倒计时) -->
       <view class="card target-card" wx:if="{{target}}">
-        <view class="card-title target-title">迁岛窗口 · 距下一个冬季最后一个血月</view>
+        <view class="card-title target-title">迁岛窗口 · {{target.title}}</view>
         <view class="count-row" wx:if="{{target.isTonight}}">
           <text class="highlight gold">就是今晚! 血月结束后立刻出发</text>
         </view>
@@ -84,25 +94,21 @@
             <text class="unit">个游戏日后</text>
           </view>
           <view class="realtime-row">
-            <text class="rt-label">实时倒计时</text>
+            <text class="rt-label">{{target.endOfDay ? '距血月结束' : '实时倒计时'}}</text>
             <text class="rt-time">{{countdown}}</text>
           </view>
         </block>
         <view class="sub-line">
           目标: 第 {{target.day}} 天
           <text wx:if="{{target.year}}"> · 第 {{target.year}} 年 冬季</text>
-          <text wx:elif="{{target.cycleDay}}"> · 周期第 {{target.cycleDay}} 天 (冬季)</text>
+          <text wx:elif="{{target.cycleDay}}"> · 周期第 {{target.cycleDay}} 天</text>
+          <text wx:if="{{target.islandName}}"> · {{target.islandName}}</text>
         </view>
         <view class="sub-line live-line">当前游戏内第 {{liveDay}} 天 (每4分钟自动+1)</view>
         <view class="strategy-tip">攻略: 该血月结束的当晚立即前往新岛 → 抵达首日为完整平安日 → 春季来临即可耕种赚钱, 避免刚上岛就遭遇血月+寒冬无田可耕。</view>
         <view class="mini-warn" wx:if="{{target.extrapolated}}">目标日在实测日历(第639天)之外, 按第10年节奏外推</view>
       </view>
-      <view class="card target-card" wx:elif="{{result.modeId === 'challenge_trade_routes'}}">
-        <view class="card-title target-title">迁岛窗口</view>
-        <view class="sub-line">商路两岛为永恒季节, 无冬季血月迁岛窗口, 此功能不适用。</view>
-      </view>
 
-      <!-- 血月倒计时 -->
       <view class="card">
         <view class="card-title blood-title">距下次血月</view>
         <view class="count-row" wx:if="{{result.isBloodMoonToday}}">
@@ -115,7 +121,6 @@
         <view class="sub-line">血月日: 第 {{result.nextBloodMoonDay}} 天</view>
       </view>
 
-      <!-- 季节信息 -->
       <view class="card">
         <view class="card-title season-title">当前季节</view>
         <view class="season-line">
@@ -127,7 +132,6 @@
         <view class="sub-line" wx:if="{{result.daysToNextSeason !== null}}">距下次换季还有 {{result.daysToNextSeason}} 天</view>
       </view>
 
-      <!-- 平安日 -->
       <view class="card">
         <view class="card-title safe-title">下次平安日</view>
         <block wx:if="{{result.nextPeaceDay}}">
@@ -143,7 +147,6 @@
         <view wx:else class="sub-line">{{result.peaceNote || '暂无平安日数据'}}</view>
       </view>
 
-      <!-- 未来7天速览 -->
       <view class="card">
         <view class="card-title cal-title">未来 7 天速览</view>
         <view class="card-subtitle">之后7个游戏日每天的类型, 便于提前规划</view>

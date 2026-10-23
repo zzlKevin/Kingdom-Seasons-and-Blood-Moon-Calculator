@@ -11,8 +11,13 @@ const SHORT_NAMES = { blood_moon: '血月', peace_day: '平安', season_change: 
 
 // 游戏时间流速: 1游戏日 = 4现实分钟
 const MS_PER_DAY = 4 * 60 * 1000;
+const TICK_MS = 250;
 
-// ---- 昼夜天空关键帧(t: 一天内进度0~1) ----
+// ---- 日月轨道高度(屏幕高度百分比, 可自行微调) ----
+const ARC_TOP = 8;      // 轨道最高点(数字越小越靠顶)
+const ARC_BOTTOM = 84;  // 地平线(数字越大越靠下)
+const ARC_AMP = ARC_BOTTOM - ARC_TOP;
+
 const SKY_KEYS = [
   { t: 0.00, top: '#1b1b3a', bot: '#3a2a52' },
   { t: 0.06, top: '#3d3a6e', bot: '#c97a5a' },
@@ -25,7 +30,6 @@ const SKY_KEYS = [
   { t: 0.80, top: '#10102a', bot: '#1e1e3e' },
   { t: 1.00, top: '#0d0d22', bot: '#191934' }
 ];
-// 血月夜: 替换傍晚之后的颜色为血红
 const BM_NIGHT = [
   { t: 0.62, top: '#4a2030', bot: '#a03040' },
   { t: 0.70, top: '#2a1020', bot: '#5a1a2a' },
@@ -34,15 +38,36 @@ const BM_NIGHT = [
 ];
 const BM_SKY_KEYS = SKY_KEYS.filter(k => k.t < 0.60).concat(BM_NIGHT);
 
-// ---- 星星(随机生成一次) ----
 const STARS = [];
 for (let i = 0; i < 18; i++) {
+  const l = Math.round(Math.random() * 96);
+  const tp = Math.round(Math.random() * 55);
+  const s = 3 + Math.round(Math.random() * 3);
+  const d = (Math.random() * 3).toFixed(1);
   STARS.push({
     idx: i,
-    l: Math.round(Math.random() * 96),
-    tp: Math.round(Math.random() * 58),
-    s: 3 + Math.round(Math.random() * 3),
-    d: (Math.random() * 3).toFixed(1)
+    style: 'left:' + l + '%;top:' + tp + '%;width:' + s + 'rpx;height:' + s + 'rpx;animation-delay:' + d + 's'
+  });
+}
+
+const PARTICLES = [];
+for (let i = 0; i < 14; i++) {
+  const l = Math.round(Math.random() * 94);
+  const dur = (9 + Math.random() * 6).toFixed(1);
+  const delay = (Math.random() * 12).toFixed(1);
+  PARTICLES.push({
+    idx: i,
+    style: 'left:' + l + '%;animation-duration:' + dur + 's;animation-delay:' + delay + 's'
+  });
+}
+const RAIN_PARTICLES = [];
+for (let i = 0; i < 10; i++) {
+  const l = Math.round(Math.random() * 94);
+  const dur = (1.3 + Math.random() * 0.8).toFixed(2);
+  const delay = (Math.random() * 5).toFixed(2);
+  RAIN_PARTICLES.push({
+    idx: i,
+    style: 'left:' + l + '%;animation-duration:' + dur + 's;animation-delay:' + delay + 's'
   });
 }
 
@@ -78,23 +103,35 @@ function skyAt(keys, t) {
 
 Page({
   data: {
+    statusBarHeight: 20,
     modes: [], modeNames: [], modeIndex: 0,
     islands: [], islandNames: [], islandIndex: 0,
     needIsland: false,
     dayInput: '',
     result: null, target: null, upcoming: [],
     liveDay: null, countdown: '00:00:00',
-    skyGradient: 'linear-gradient(180deg, #0d0d22 0%, #191934 100%)',
-    sunStyle: 'left:8%;top:66%;opacity:0',
-    moonStyle: 'left:8%;top:66%;opacity:0',
-    starsOpacity: '0', cloudsOpacity: '0',
+    skyStyle: 'background: linear-gradient(180deg, #0d0d22 0%, #191934 100%)',
+    sunStyle: 'left:6%;top:84%;opacity:0',
+    moonStyle: 'left:6%;top:84%;opacity:0',
+    moonClass: '',
+    riverGlintStyle: 'opacity:0',
+    starsStyle: 'opacity:0',
+    cloudsStyle: 'opacity:0',
+    dayProgressStyle: 'width:0%',
     isBloodNight: false,
-    dayPhaseName: '—', dayRemaining: '04:00', dayProgressPct: 0,
-    stars: STARS,
+    dayPhaseName: '—', dayRemaining: '04:00',
+    seasonClass: '',
+    stars: STARS, particles: PARTICLES, rainParticles: RAIN_PARTICLES,
     error: ''
   },
 
   onLoad() {
+    // 自定义导航: 取状态栏高度做顶部留白
+    try {
+      const wi = typeof wx.getWindowInfo === 'function' ? wx.getWindowInfo() : wx.getSystemInfoSync();
+      this.setData({ statusBarHeight: wi.statusBarHeight || 20 });
+    } catch (e) { /* 用默认值 */ }
+
     const modes = listModes();
     const patch = { modes, modeNames: modes.map(m => m.name) };
     try {
@@ -153,7 +190,7 @@ Page({
     }
     if (resetBase || !this._baseDay) { this._baseDay = day; this._baseTime = Date.now(); }
     this._dirty = true;
-    if (!this._timer) this._timer = setInterval(() => this.tick(), 1000);
+    if (!this._timer) this._timer = setInterval(() => this.tick(), TICK_MS);
     this.tick();
   },
 
@@ -168,11 +205,12 @@ Page({
     const mode = modes[modeIndex];
     const island = needIsland ? islands[islandIndex] : null;
 
-    // 迁岛窗口实时倒计时
-    const t = nextWinterLastBloodMoon(mode.id, liveDay);
+    const t = nextWinterLastBloodMoon(mode.id, liveDay, island ? island.id : null);
     let countdown = '00:00:00';
     if (t) {
-      const targetStart = this._baseTime + (t.day - this._baseDay) * MS_PER_DAY;
+      // endOfDay: 商路目标为血月当天结束时刻(= 次日开始)
+      const endOffset = t.endOfDay ? 1 : 0;
+      const targetStart = this._baseTime + (t.day + endOffset - this._baseDay) * MS_PER_DAY;
       countdown = fmtHMS(targetStart - now);
     }
 
@@ -194,6 +232,7 @@ Page({
         freshResult = result;
         patch.result = result; patch.target = t; patch.upcoming = upcoming;
         patch.liveDay = liveDay; patch.error = '';
+        patch.seasonClass = result.seasonKey ? ('p-' + result.seasonKey) : '';
         if (String(liveDay) !== this.data.dayInput) patch.dayInput = String(liveDay);
         try { wx.setStorageSync('bmc_last', { modeIndex, islandIndex, dayInput: String(liveDay) }); } catch (e) { /* 忽略 */ }
       } catch (err) {
@@ -205,49 +244,69 @@ Page({
     this.updateSky(now, liveDay, freshResult);
   },
 
-  // ---- 昼夜天空/时钟(每秒) ----
   updateSky(now, liveDay, fresh) {
-    const isBM = fresh ? fresh.isBloodMoonToday
-      : (this.data.result ? this.data.result.isBloodMoonToday : false);
+    const r = fresh || this.data.result;
+    const isBM = r ? r.isBloodMoonToday : false;
+    const isPeace = r ? r.isPeaceDayToday : false;
     const dayStart = this._baseTime + (liveDay - this._baseDay) * MS_PER_DAY;
     const t = Math.min(1, Math.max(0, (now - dayStart) / MS_PER_DAY));
 
     const [top, bot] = skyAt(isBM ? BM_SKY_KEYS : SKY_KEYS, t);
 
-    // 太阳: 0.03~0.68 沿弧线
-    let sunOp = 0, sx = 8, sy = 66;
-    if (t >= 0.03 && t <= 0.68) {
-      const ps = (t - 0.03) / 0.65;
-      sunOp = Math.min(1, Math.min(ps / 0.06, (1 - ps) / 0.06));
-      sx = 8 + ps * 84;
-      sy = 66 - Math.sin(Math.PI * ps) * 52;
+    // 太阳: t 0~0.64 完整弧线, t=0 从地平线下升起
+    let sunOp = 0, sx = 6, sy = ARC_BOTTOM;
+    if (t <= 0.64) {
+      const ps = t / 0.64;
+      sunOp = Math.min(1, Math.min(ps / 0.07, (1 - ps) / 0.07));
+      sx = 6 + ps * 88;
+      sy = ARC_BOTTOM - Math.sin(Math.PI * ps) * ARC_AMP;
     }
-    // 月亮: 0.68~1.06(跨零点)
-    let moonOp = 0, mx = 8, my = 66;
-    if (t >= 0.68 || t < 0.06) {
-      const pt = t >= 0.68 ? (t - 0.68) / 0.38 : (t + 0.32) / 0.38;
-      moonOp = Math.min(1, Math.min(pt / 0.06, (1 - pt) / 0.06));
-      mx = 8 + pt * 84;
-      my = 66 - Math.sin(Math.PI * pt) * 52;
+    // 月亮: t 0.66~1.00, 归零瞬间正好完全落下
+    let moonOp = 0, mx = 6, my = ARC_BOTTOM;
+    if (t >= 0.66) {
+      const pt = (t - 0.66) / 0.34;
+      moonOp = Math.min(1, Math.min(pt / 0.07, (1 - pt) / 0.07));
+      mx = 6 + pt * 88;
+      my = ARC_BOTTOM - Math.sin(Math.PI * pt) * ARC_AMP;
     }
-    // 星星亮度
+    let moonClass = '';
+    if (t >= 0.62) {
+      if (isBM) moonClass = 'blood';
+      else if (isPeace) moonClass = 'peace';
+    }
     let nf = 0;
     if (t >= 0.70) nf = Math.min(1, (t - 0.70) / 0.08);
     else if (t < 0.06) nf = Math.max(0, 1 - t / 0.06);
     if (isBM) nf *= 0.45;
 
-    const phaseName = t < 0.08 ? '黎明' : t < 0.55 ? '白天' : t < 0.70 ? '黄昏' : '夜晚';
+    const phaseName = t < 0.08 ? '黎明' : t < 0.55 ? '白天' : t < 0.66 ? '黄昏' : '夜晚';
+
+    // 河面倒影光带: 白天跟太阳(金色), 夜晚跟月亮(按月色)
+    let riverGlintStyle = 'opacity:0';
+    const so = Math.max(0, sunOp), mo = Math.max(0, moonOp);
+    if (so > 0.03) {
+      riverGlintStyle = 'left:' + sx.toFixed(1) + '%;opacity:' + so.toFixed(2) +
+        ';background:linear-gradient(180deg, rgba(255,210,120,.8), rgba(255,210,120,0))';
+    } else if (mo > 0.03) {
+      const c = moonClass === 'blood' ? 'rgba(255,80,95,.75)'
+        : moonClass === 'peace' ? 'rgba(110,185,255,.75)'
+        : 'rgba(185,195,255,.6)';
+      riverGlintStyle = 'left:' + mx.toFixed(1) + '%;opacity:' + mo.toFixed(2) +
+        ';background:linear-gradient(180deg,' + c + ', rgba(0,0,0,0))';
+    }
 
     this.setData({
-      skyGradient: 'linear-gradient(180deg, ' + top + ' 0%, ' + bot + ' 100%)',
-      sunStyle: 'left:' + sx.toFixed(1) + '%;top:' + sy.toFixed(1) + '%;opacity:' + Math.max(0, sunOp).toFixed(2),
-      moonStyle: 'left:' + mx.toFixed(1) + '%;top:' + my.toFixed(1) + '%;opacity:' + Math.max(0, moonOp).toFixed(2),
-      starsOpacity: nf.toFixed(2),
-      cloudsOpacity: (Math.max(0, sunOp) * 0.35).toFixed(2),
+      skyStyle: 'background: linear-gradient(180deg, ' + top + ' 0%, ' + bot + ' 100%)',
+      sunStyle: 'left:' + sx.toFixed(1) + '%;top:' + sy.toFixed(1) + '%;opacity:' + so.toFixed(2),
+      moonStyle: 'left:' + mx.toFixed(1) + '%;top:' + my.toFixed(1) + '%;opacity:' + mo.toFixed(2),
+      moonClass,
+      riverGlintStyle,
+      starsStyle: 'opacity:' + nf.toFixed(2),
+      cloudsStyle: 'opacity:' + (so * 0.35).toFixed(2),
+      dayProgressStyle: 'width:' + Math.floor(t * 100) + '%',
       isBloodNight: !!(isBM && t >= 0.62),
       dayPhaseName: phaseName,
-      dayRemaining: fmtMS(MS_PER_DAY - (now - dayStart)),
-      dayProgressPct: Math.floor(t * 100)
+      dayRemaining: fmtMS(MS_PER_DAY - (now - dayStart))
     });
   }
 });

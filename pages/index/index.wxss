@@ -1,10 +1,10 @@
-/* ============ 昼夜天空背景(fixed 底层) ============ */
+/* ============ 昼夜天空背景 ============ */
 .sky-bg {
   position: fixed; top: 0; left: 0;
   width: 100vw; height: 100vh;
   overflow: hidden; z-index: 0;
 }
-.stars { position: absolute; top: 0; left: 0; right: 0; bottom: 0; transition: opacity 2s; }
+.stars { position: absolute; top: 0; left: 0; right: 0; bottom: 0; transition: opacity 1s; }
 .star {
   position: absolute; background: #fff; border-radius: 50%;
   animation: twinkle 2.4s infinite alternate ease-in-out;
@@ -16,32 +16,86 @@
   margin-left: -48rpx; margin-top: -48rpx;
   background: radial-gradient(circle at 35% 35%, #fff7d0, #ffd257 55%, #ff9d3c);
   box-shadow: 0 0 60rpx 20rpx rgba(255, 210, 120, .55);
-  transition: opacity 1.5s;
+  transition: left .26s linear, top .26s linear, opacity .4s linear;
 }
 .moon {
   position: absolute; width: 80rpx; height: 80rpx; border-radius: 50%;
   margin-left: -40rpx; margin-top: -40rpx;
   background: radial-gradient(circle at 38% 34%, #f5f5ff, #cfd2ea 60%, #9aa0c8);
   box-shadow: 0 0 50rpx 14rpx rgba(200, 210, 255, .4);
-  transition: opacity 1.5s;
+  transition: left .26s linear, top .26s linear, opacity .4s linear, background .8s;
 }
+/* 平安日蓝月 */
+.moon.peace {
+  background: radial-gradient(circle at 38% 34%, #d8f2ff, #6bb6ff 55%, #2456a8);
+  box-shadow: 0 0 60rpx 22rpx rgba(100, 180, 255, .5);
+}
+/* 血月红月 */
 .moon.blood {
   background: radial-gradient(circle at 38% 34%, #ffb0a0, #d84a52 55%, #8c1830);
   box-shadow: 0 0 60rpx 24rpx rgba(230, 60, 70, .45);
 }
 .cloud { position: absolute; border-radius: 50rpx; background: rgba(255,255,255,.85); filter: blur(18px); }
-.c1 { width: 260rpx; height: 60rpx; top: 18%; left: -30%; animation: drift 70s linear infinite; }
-.c2 { width: 200rpx; height: 46rpx; top: 30%; left: -30%; animation: drift 95s linear infinite; animation-delay: -40s; }
+.c1 { width: 260rpx; height: 60rpx; top: 12%; left: -30%; animation: drift 70s linear infinite; }
+.c2 { width: 200rpx; height: 46rpx; top: 22%; left: -30%; animation: drift 95s linear infinite; animation-delay: -40s; }
 @keyframes drift { to { transform: translateX(130vw); } }
+
+/* ---- 季节粒子 ---- */
+.particles { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+.pt { position: absolute; top: -30rpx; }
+/* 春: 粉色花瓣, 摇摆飘落 */
+.p-spring .pt {
+  width: 14rpx; height: 14rpx; opacity: .9;
+  background: #ffb7c9;
+  border-radius: 50% 0 50% 50%;
+  animation-name: fallSway; animation-timing-function: linear; animation-iteration-count: infinite;
+}
+/* 秋: 橙黄落叶, 旋转飘落 */
+.p-autumn .pt {
+  width: 16rpx; height: 16rpx; opacity: .95;
+  background: linear-gradient(135deg, #ffb457, #e07030);
+  border-radius: 50% 0 50% 50%;
+  animation-name: fallSway; animation-timing-function: linear; animation-iteration-count: infinite;
+}
+/* 冬: 白雪, 缓慢摆动 */
+.p-winter .pt {
+  width: 10rpx; height: 10rpx; opacity: .9;
+  background: #fff; border-radius: 50%;
+  animation-name: fallSnow; animation-timing-function: linear; animation-iteration-count: infinite;
+}
+/* 夏: 稀疏雨丝, 快速直落 */
+.p-summer .pt {
+  width: 3rpx; height: 26rpx; opacity: .65;
+  background: rgba(205, 228, 255, .8); border-radius: 3rpx;
+  animation-name: fallRain; animation-timing-function: linear; animation-iteration-count: infinite;
+}
+@keyframes fallSway {
+  0%   { transform: translate(0, -4vh) rotate(0deg); }
+  25%  { transform: translate(28rpx, 24vh) rotate(95deg); }
+  50%  { transform: translate(-16rpx, 50vh) rotate(200deg); }
+  75%  { transform: translate(28rpx, 76vh) rotate(290deg); }
+  100% { transform: translate(0, 104vh) rotate(380deg); }
+}
+@keyframes fallSnow {
+  0%   { transform: translate(0, -4vh); }
+  30%  { transform: translate(20rpx, 30vh); }
+  60%  { transform: translate(-20rpx, 66vh); }
+  100% { transform: translate(0, 104vh); }
+}
+@keyframes fallRain {
+  0%   { transform: translateY(-6vh); }
+  100% { transform: translateY(106vh); }
+}
 
 /* 城堡剪影 + 红旗 */
 .castle {
-  position: absolute; left: 0; right: 0; bottom: 0; height: 170rpx;
+  position: absolute; left: 0; right: 0; bottom: 0; height: 150rpx;
   background: #0a0a18;
   clip-path: polygon(0 100%, 0 62%, 5% 62%, 5% 45%, 11% 45%, 11% 62%, 17% 62%, 17% 38%, 23% 38%, 23% 62%, 30% 62%, 30% 12%, 33.5% 12%, 33.5% 0, 36.5% 0, 36.5% 12%, 40% 12%, 40% 62%, 47% 62%, 47% 30%, 52% 30%, 52% 62%, 60% 62%, 60% 42%, 66% 42%, 66% 62%, 73% 62%, 73% 50%, 79% 50%, 79% 62%, 86% 62%, 86% 55%, 93% 55%, 93% 62%, 100% 62%, 100% 100%);
 }
+
 .flag {
-  position: absolute; left: 34.5%; bottom: 168rpx;
+  position: absolute; left: 34.5%; bottom: 148rpx;
   width: 4rpx; height: 60rpx; background: #0a0a18;
 }
 .flag::after {
@@ -50,8 +104,29 @@
   border-bottom: 14rpx solid transparent;
   border-left: 36rpx solid #c22a3e;
 }
+/* ---- 底部河流 ---- */
+.river {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 30rpx;
+  background: linear-gradient(180deg, rgba(30,60,110,.55), rgba(10,18,40,.94));
+  overflow: hidden;
+}
+.river-glint {
+  position: absolute; top: 0; bottom: 0; width: 110rpx;
+  margin-left: -55rpx; filter: blur(6px); opacity: 0;
+  transition: left .26s linear, opacity .4s;
+}
+.river-wave {
+  position: absolute; left: -100%; width: 300%; height: 16rpx;
+  background: repeating-linear-gradient(90deg,
+    rgba(255,255,255,.12) 0 60rpx, rgba(255,255,255,0) 60rpx 140rpx);
+  border-radius: 8rpx; filter: blur(3px);
+  animation: riverFlow 8s linear infinite;
+}
+.river-wave.w1 { top: 16rpx; }
+.river-wave.w2 { top: 44rpx; opacity: .6; animation-duration: 13s; animation-direction: reverse; }
+@keyframes riverFlow { to { transform: translateX(140rpx); } }
 
-/* ============ 内容层(页面原生滚动) ============ */
+/* ============ 内容层 ============ */
 .page-wrap { position: relative; z-index: 1; }
 .page { padding: 24rpx; padding-bottom: 80rpx; }
 
@@ -59,10 +134,9 @@
 .title { font-size: 48rpx; font-weight: 700; letter-spacing: 4rpx; text-shadow: 0 2rpx 12rpx rgba(0,0,0,.5); }
 .subtitle { font-size: 24rpx; color: rgba(230,230,250,.8); margin-top: 8rpx; }
 
-/* 玻璃拟态卡片: px单位blur + 半透明兜底 */
 .card {
-  background: rgba(22, 22, 48, 0.62);
-  backdrop-filter: blur(12px);
+  background: rgba(22, 22, 48, 0.40);
+  backdrop-filter: blur(5px);
   -webkit-backdrop-filter: blur(12px);
   border: 1rpx solid rgba(255,255,255,.14);
   box-shadow: 0 4rpx 24rpx rgba(0,0,0,.25);
@@ -71,16 +145,15 @@
   margin-bottom: 24rpx;
 }
 
-/* ---- 表单 ---- */
 .form-item { margin-bottom: 28rpx; }
 .form-item:last-child { margin-bottom: 0; }
-.label { font-size: 24rpx; color: rgba(210,210,240,.75); margin-bottom: 12rpx; }
+.label { font-size: 24rpx; color: rgba(255, 255, 255); margin-bottom: 12rpx; }
 .picker-value {
   background: rgba(255,255,255,.1);
   border-radius: 14rpx; padding: 22rpx 24rpx; font-size: 30rpx;
 }
-.arrow { color: rgba(210,210,240,.5); float: right; }
-.tip { font-size: 22rpx; color: rgba(210,210,240,.5); margin-top: 10rpx; }
+.arrow { color: rgba(255, 255, 255); float: right; }
+.tip { font-size: 22rpx; color: rgba(255, 255, 255); margin-top: 10rpx; }
 
 .stepper-row { display: flex; align-items: center; }
 .step-btn {
@@ -105,7 +178,6 @@
   margin-bottom: 24rpx; font-size: 24rpx;
 }
 
-/* ---- 今日状态卡 ---- */
 .today-card { text-align: center; padding: 44rpx 28rpx; }
 .today-card.blood_moon { background: rgba(140, 25, 42, .72); }
 .today-card.peace_day { background: rgba(25, 75, 140, .68); }
@@ -120,7 +192,7 @@
 .clock-phase { font-size: 40rpx; font-weight: 700; color: #ffd27b; }
 .clock-phase.blood { color: #ff6b6b; }
 .clock-remaining {
-  font-size: 30rpx; color: #f0f0ff;
+  font-size: 34rpx; font-weight: 700; color: #ffd27b;
   font-variant-numeric: tabular-nums; letter-spacing: 1rpx;
 }
 .day-progress {
@@ -130,37 +202,35 @@
 .day-progress-bar {
   height: 100%; border-radius: 8rpx;
   background: linear-gradient(90deg, #ffb457, #ff7b54, #b98aff);
-  transition: width 1s linear;
+  transition: width .26s linear;
 }
-.clock-note { margin-top: 12rpx; font-size: 22rpx; color: rgba(210,210,240,.55); }
+.clock-note { margin-top: 12rpx; font-size: 22rpx; color: rgba(255, 255, 255); }
 
-/* ---- 信息卡 ---- */
 .card-title { font-size: 28rpx; margin-bottom: 18rpx; font-weight: 600; }
-.card-subtitle { font-size: 22rpx; color: rgba(210,210,240,.55); margin: -10rpx 0 16rpx; }
+.card-subtitle { font-size: 22rpx; color: rgba(255, 255, 255); margin: -10rpx 0 16rpx; }
 .blood-title { color: #ff8a8a; }
 .season-title { color: #c9a0ff; }
 .safe-title { color: #8ac6ff; }
 .cal-title { color: #ffd27b; }
 .count-row { display: flex; align-items: baseline; }
 .big-num { font-size: 72rpx; font-weight: 700; color: #ff6b6b; }
-.unit { margin-left: 12rpx; font-size: 28rpx; color: rgba(210,210,240,.65); }
+.unit { margin-left: 12rpx; font-size: 28rpx; color: rgba(255, 255, 255); }
 .highlight { font-size: 44rpx; font-weight: 700; }
 .danger { color: #ff6b6b; }
 .safe { color: #6bb6ff; }
 .gold { color: #ffd27b; }
-.sub-line { font-size: 24rpx; color: rgba(210,210,240,.65); margin-top: 14rpx; }
-.live-line { color: #c5c5ee; }
+.sub-line { font-size: 24rpx; color: rgba(255, 255, 255); margin-top: 14rpx; }
+.live-line { color: #ffffff; }
 
 .season-line { display: flex; align-items: baseline; flex-wrap: wrap; }
 .season-name { font-size: 52rpx; font-weight: 700; color: #c9a0ff; margin-right: 20rpx; }
 .season-detail { font-size: 28rpx; color: #e0e0f8; }
 
-/* ---- 迁岛窗口卡 ---- */
 .target-card { border: 1rpx solid rgba(255, 210, 123, .3); background: rgba(50, 40, 20, .62); }
 .target-title { color: #ffd27b; }
 .gold-num { font-size: 72rpx; font-weight: 700; color: #ffd27b; }
 .realtime-row { display: flex; align-items: baseline; margin-top: 10rpx; }
-.rt-label { font-size: 24rpx; color: rgba(210,210,240,.65); margin-right: 16rpx; }
+.rt-label { font-size: 24rpx; color: rgba(255, 255, 255); margin-right: 16rpx; }
 .rt-time {
   font-size: 48rpx; font-weight: 700; color: #ffd27b;
   font-variant-numeric: tabular-nums; letter-spacing: 2rpx;
@@ -172,18 +242,20 @@
 }
 .mini-warn { margin-top: 12rpx; font-size: 22rpx; color: #ffd27b; opacity: .85; }
 
-/* ---- 未来7天(flex直排) ---- */
-.upcoming-row { display: flex; flex-wrap: wrap; }
+/* ---- 未来7天: 压缩宽度, 7个一排 ---- */
+.upcoming-row { display: flex; flex-wrap: nowrap; }
 .up-item {
-  width: 90rpx; background: rgba(255,255,255,.1);
-  border-radius: 12rpx; padding: 14rpx 0; text-align: center;
-  margin: 0 10rpx 10rpx 0;
+  flex: 1 1 0; min-width: 0;
+  background: rgba(255,255,255,.1);
+  border-radius: 10rpx; padding: 12rpx 0; text-align: center;
+  margin-right: 7rpx;
 }
+.up-item:last-child { margin-right: 0; }
 .up-item.blood_moon { background: rgba(140, 30, 45, .85); }
 .up-item.peace_day { background: rgba(30, 77, 139, .85); }
 .up-item.season_change { background: rgba(91, 45, 139, .85); }
-.up-day { font-size: 22rpx; color: #d5d5f0; }
-.up-tag { font-size: 22rpx; margin-top: 6rpx; color: #ffffff; }
-.up-item.normal .up-tag { color: rgba(210,210,240,.65); }
+.up-day { font-size: 20rpx; color: #d5d5f0; }
+.up-tag { font-size: 20rpx; margin-top: 4rpx; color: #ffffff; }
+.up-item.normal .up-tag { color: rgba(255, 255, 255); }
 
-.footer { text-align: center; font-size: 22rpx; color: rgba(210,210,240,.4); margin-top: 16rpx; }
+.footer { text-align: center; font-size: 22rpx; color: rgba(255, 255, 255); margin-top: 16rpx; }
