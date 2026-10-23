@@ -212,14 +212,28 @@
   font-variant-numeric: tabular-nums; letter-spacing: 1rpx;
 }
 .day-progress {
+  position: relative;
   height: 14rpx; background: rgba(255,255,255,.15);
-  border-radius: 8rpx; margin-top: 18rpx; overflow: hidden;
+  border-radius: 8rpx; margin-top: 18rpx;
+  padding: 16rpx 0; margin-bottom: -16rpx; /* 扩大触摸热区 */
+  box-sizing: content-box;
+}
+.day-progress::before {
+  content: ''; position: absolute; left: 0; right: 0; top: 16rpx; bottom: 16rpx;
+  background: rgba(255,255,255,.15); border-radius: 8rpx;
 }
 .day-progress-bar {
-  height: 100%; border-radius: 8rpx;
+  position: absolute; left: 0; top: 16rpx; bottom: 16rpx;
+  border-radius: 8rpx;
   background: linear-gradient(90deg, #ffb457, #ff7b54, #b98aff);
-  transition: width .26s linear;
 }
+.day-progress-knob {
+  position: absolute; top: 50%; width: 32rpx; height: 32rpx;
+  margin-left: -16rpx; margin-top: -16rpx; border-radius: 50%;
+  background: #fff; box-shadow: 0 0 8rpx rgba(0,0,0,.5);
+  pointer-events: none;
+}
+
 .clock-note { margin-top: 12rpx; font-size: 22rpx; color: rgba(255, 255, 255); }
 
 .card-title { font-size: 28rpx; margin-bottom: 18rpx; font-weight: 600; }

@@ -104,6 +104,7 @@ function skyAt(keys, t) {
 
 Page({
   data: {
+    dayKnobStyle: 'left:0%',
     statusBarHeight: 20,
     modes: [], modeNames: [], modeIndex: 0,
     islands: [], islandNames: [], islandIndex: 0,
@@ -201,7 +202,7 @@ Page({
     if (!Number.isInteger(parsed)) return;
     if (!this._baseDay) { this._baseDay = parsed; this._baseTime = Date.now(); }
 
-    const now = Date.now();
+    const now = Date.now() + (this._scrubOffset || 0);
     const liveDay = this._baseDay + Math.floor((now - this._baseTime) / MS_PER_DAY);
     const mode = modes[modeIndex];
     const island = needIsland ? islands[islandIndex] : null;
@@ -243,6 +244,33 @@ Page({
     }
     this.setData(patch);
     this.updateSky(now, liveDay, freshResult);
+  },
+
+  /* ---- 进度条触摸调节时间 ---- */
+  onProgressTouch(e) {
+    const touch = e.touches && e.touches[0];
+    if (!touch) return;
+    if (this._progRect) { this._applyScrub(touch.clientX, this._progRect); return; }
+    wx.createSelectorQuery().in(this)
+      .select('.day-progress')
+      .boundingClientRect(rect => {
+        if (!rect || !rect.width) return;
+        this._progRect = rect;
+        this._applyScrub(touch.clientX, rect);
+      }).exec();
+  },
+
+  onProgressEnd() { this._progRect = null; },
+
+  _applyScrub(clientX, rect) {
+    const parsed = parseInt(this.data.dayInput, 10);
+    if (!Number.isInteger(parsed) || !this._baseDay) return;
+    const f = Math.min(0.999, Math.max(0, (clientX - rect.left) / rect.width));
+    const off0 = this._scrubOffset || 0;
+    const dayStart = this._baseTime + (this._lastLiveDay - this._baseDay) * MS_PER_DAY;
+    const tNow = (Date.now() - dayStart) / MS_PER_DAY + off0 / MS_PER_DAY;
+    this._scrubOffset = off0 + (f - tNow) * MS_PER_DAY;
+    this.tick();
   },
 
   updateSky(now, liveDay, fresh) {
@@ -297,6 +325,7 @@ Page({
     }
 
     this.setData({
+      dayKnobStyle: 'left:' + (t * 100).toFixed(1) + '%',
       skyStyle: 'background: linear-gradient(180deg, ' + top + ' 0%, ' + bot + ' 100%)',
       sunStyle: 'left:' + sx.toFixed(1) + '%;top:' + sy.toFixed(1) + '%;opacity:' + so.toFixed(2),
       moonStyle: 'left:' + mx.toFixed(1) + '%;top:' + my.toFixed(1) + '%;opacity:' + mo.toFixed(2),

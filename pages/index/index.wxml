@@ -77,9 +77,12 @@
           <view class="clock-phase {{isBloodNight ? 'blood' : ''}}">{{isBloodNight ? '血月之夜' : dayPhaseName}}</view>
           <view class="clock-remaining">距明天 {{dayRemaining}}</view>
         </view>
-        <view class="day-progress">
-          <view class="day-progress-bar" style="{{dayProgressStyle}}"></view>
-        </view>
+        <view class="day-progress"
+            bindtouchstart="onProgressTouch" bindtouchmove="onProgressTouch" bindtouchend="onProgressEnd">
+        <view class="day-progress-bar" style="{{dayProgressStyle}}"></view>
+        <view class="day-progress-knob" style="{{dayKnobStyle}}"></view>
+      </view>
+
         <view class="clock-note">与游戏内昼夜同步 · 1游戏日 = 4现实分钟</view>
       </view>
       <!-- 血月 + 平安日 合并卡 -->
