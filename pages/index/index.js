@@ -11,7 +11,8 @@ const SHORT_NAMES = { blood_moon: '血月', peace_day: '平安', season_change: 
 
 // 游戏时间流速: 1游戏日 = 4现实分钟
 const MS_PER_DAY = 4 * 60 * 1000;
-const TICK_MS = 250;
+// 刷新频率(越低越丝滑, 250ms 性能与流畅平衡)
+const TICK_MS = 200;
 
 // ---- 日月轨道高度(屏幕高度百分比, 可自行微调) ----
 const ARC_TOP = 8;      // 轨道最高点(数字越小越靠顶)

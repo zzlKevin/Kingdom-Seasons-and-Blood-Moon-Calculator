@@ -3,7 +3,6 @@
     "pages/index/index"
   ],
   "window": {
-    "navigationStyle": "custom",
     "navigationBarTitleText": "王国·血月日历",
     "navigationBarBackgroundColor": "#14142B",
     "navigationBarTextStyle": "white",
@@ -11,7 +10,6 @@
     "backgroundTextStyle": "light"
   },
   "style": "v2",
-  "renderer": "webview",
   "sitemapLocation": "sitemap.json",
   "lazyCodeLoading": "requiredComponents"
 }
