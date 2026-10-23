@@ -67,7 +67,8 @@
       <view class="extrapolate-tip" wx:if="{{result.note}}">{{result.note}}</view>
 
       <view class="card today-card {{result.todayType}}">
-        <view class="today-label">第 {{result.day}} 天 · 今天是</view>
+        <view class="today-label">今天是</view>
+        <view class="today-roman">{{romanDay}}</view>
         <view class="today-type">{{result.todayTypeName}}</view>
         <view class="today-hint">{{result.todayHint}}</view>
       </view>

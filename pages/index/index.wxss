@@ -1,3 +1,4 @@
+@import "fonts.wxss";
 /* ============ 昼夜天空背景 ============ */
 .sky-bg {
   position: fixed; top: 0; left: 0;
@@ -199,6 +200,13 @@
 .today-card.season_change { background: rgba(85, 40, 150, .68); }
 .today-card.normal { background: rgba(35, 35, 70, .62); }
 .today-label { font-size: 26rpx; opacity: .85; }
+.today-roman {
+  font-family: 'StGothic', 'Times New Roman', serif;
+  font-size: 48rpx; line-height: 0.5;
+  margin: 50rpx 0 0;
+  color: #ffffff; text-shadow: 0 2rpx 6rpx rgba(0,0,0,.5);
+  letter-spacing: 6rpx;
+}
 .today-type { font-size: 56rpx; font-weight: 700; margin: 16rpx 0; }
 .today-hint { font-size: 24rpx; opacity: .9; }
 

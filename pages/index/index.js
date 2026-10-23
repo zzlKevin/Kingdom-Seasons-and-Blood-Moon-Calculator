@@ -14,6 +14,21 @@ const MS_PER_DAY = 4 * 60 * 1000;
 // 刷新频率(越低越丝滑, 250ms 性能与流畅平衡)
 const TICK_MS = 200;
 
+// 天数 → 罗马数字(移植自 daegmael 的 romanize, 标准减写法)
+function toRoman(n) {
+  if (!Number.isInteger(n) || n < 1) return '';
+  const map = [
+    [1000, 'M'], [900, 'CM'], [500, 'D'], [400, 'CD'],
+    [100, 'C'], [90, 'XC'], [50, 'L'], [40, 'XL'],
+    [10, 'X'], [9, 'IX'], [5, 'V'], [4, 'IV'], [1, 'I']
+  ];
+  let out = '';
+  for (const [v, s] of map) {
+    while (n >= v) { out += s; n -= v; }
+  }
+  return out;
+}
+
 // ---- 日月轨道高度(屏幕高度百分比, 可自行微调) ----
 const ARC_TOP = 8;      // 轨道最高点(数字越小越靠顶)
 const ARC_BOTTOM = 84;  // 地平线(数字越大越靠下)
@@ -112,6 +127,7 @@ Page({
     dayInput: '',
     result: null, target: null, upcoming: [],
     liveDay: null, countdown: '00:00:00',
+    romanDay: '',
     skyStyle: 'background: linear-gradient(180deg, #0d0d22 0%, #191934 100%)',
     sunStyle: 'left:6%;top:84%;opacity:0',
     moonStyle: 'left:6%;top:84%;opacity:0',
@@ -237,6 +253,7 @@ Page({
         freshResult = result;
         patch.result = result; patch.target = t; patch.upcoming = upcoming;
         patch.liveDay = liveDay; patch.error = '';
+        patch.romanDay = toRoman(liveDay).toLowerCase();
         patch.seasonClass = result.seasonKey ? ('p-' + result.seasonKey) : '';
         if (String(liveDay) !== this.data.dayInput) patch.dayInput = String(liveDay);
         try { wx.setStorageSync('bmc_last', { modeIndex, islandIndex, dayInput: String(liveDay) }); } catch (e) { /* 忽略 */ }
